@@ -51,6 +51,8 @@ type Admin struct {
 	ClientID   string `json:"client-id"`
 	CertChain  string `json:"cert-chain"`
 	KMSKeyPath string `json:"kms-key-path"`
+	AKVKeyPath string `json:"akv-key-path"`
+	AKVKeyID   string `json:"akv-key-id"`
 	Scopes     string `json:"scopes"`
 }
 
@@ -98,6 +100,8 @@ const (
 	DigDirAdminClientID   = "digdir.admin.client-id"
 	DigDirAdminCertChain  = "digdir.admin.cert-chain"
 	DigDirAdminKmsKeyPath = "digdir.admin.kms-key-path"
+	DigDirAdminAkvKeyPath = "digdir.admin.akv-key-path"
+	DigDirAdminAkvKeyID   = "digdir.admin.akv-key-id"
 	DigDirAdminScopes     = "digdir.admin.scopes"
 
 	DigDirCommonClientName               = "digdir.common.client-name"
@@ -138,6 +142,8 @@ func init() {
 	flag.String(DigDirAdminClientID, "", "Client ID / issuer for JWT assertion when authenticating with DigDir self service API.")
 	flag.String(DigDirAdminScopes, "idporten:dcr.write idporten:dcr.read idporten:scopes.write", "List of space-separated scopes for JWT assertion when authenticating with DigDir self service API.")
 	flag.String(DigDirAdminKmsKeyPath, "projects/<project-id>/locations/<location>/keyRings/<key-ring-name>/cryptoKeys/<key-name>/cryptoKeyVersions/<key-version>", "Resource path to Google KMS key used to sign JWT assertion.")
+	flag.String(DigDirAdminAkvKeyPath, "", "URL to Azure Key Vault (AKV) RSA key used to sign JWT assertion, e.g. https://<vault-name>.vault.azure.net/keys/<key-name>[/<key-version>]. If set, used instead of Google KMS.")
+	flag.String(DigDirAdminAkvKeyID, "", "Key ID (kid) of the Azure Key Vault key as registered on the DigDir admin client. If not set, the certificate chain is sent as x5c.")
 	flag.String(DigDirAdminCertChain, "", "Full certificate chain in PEM format for business certificate used to sign JWT assertion.")
 
 	flag.String(DigDirCommonClientName, "ARBEIDS- OG VELFERDSETATEN", "Default name for all provisioned clients. Appears in the login prompt for ID-porten.")

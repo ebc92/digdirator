@@ -66,12 +66,12 @@ func run() error {
 		return fmt.Errorf("starting manager: %w", err)
 	}
 
-	kmsSigner, err := signer.NewKmsSigner(ctx, cfg.DigDir.Admin.KMSKeyPath, []byte(cfg.DigDir.Admin.CertChain))
+	keySigner, err := signer.New(ctx, cfg.DigDir.Admin.AKVKeyPath, cfg.DigDir.Admin.AKVKeyID, cfg.DigDir.Admin.KMSKeyPath, []byte(cfg.DigDir.Admin.CertChain))
 	if err != nil {
-		return fmt.Errorf("setting up kms signer: %w", err)
+		return fmt.Errorf("setting up key signer: %w", err)
 	}
 
-	digdirClient, err := digdir.NewClient(cfg, http.DefaultClient, kmsSigner)
+	digdirClient, err := digdir.NewClient(cfg, http.DefaultClient, keySigner)
 	if err != nil {
 		return fmt.Errorf("setting up digdir client: %w", err)
 	}
@@ -131,9 +131,14 @@ func setup(ctx context.Context) (*config.Config, error) {
 		config.ClusterName,
 		config.DigDirAdminBaseURL,
 		config.DigDirAdminClientID,
-		config.DigDirAdminCertChain,
-		config.DigDirAdminKmsKeyPath,
 		config.DigDirAdminScopes,
+	}
+
+	switch {
+	case cfg.DigDir.Admin.AKVKeyPath == "":
+		required = append(required, config.DigDirAdminCertChain, config.DigDirAdminKmsKeyPath)
+	case cfg.DigDir.Admin.AKVKeyID == "":
+		required = append(required, config.DigDirAdminCertChain)
 	}
 
 	if err = cfg.Validate(required); err != nil {

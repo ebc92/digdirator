@@ -2,6 +2,7 @@ package signer
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -13,6 +14,14 @@ import (
 const (
 	SigningAlg = jose.RS256
 )
+
+// New returns an Azure Key Vault signer if akvKeyPath is set, otherwise a Google KMS signer.
+func New(ctx context.Context, akvKeyPath, akvKeyID, kmsKeyPath string, pemChain []byte) (jose.Signer, error) {
+	if akvKeyPath != "" {
+		return NewAkvSigner(ctx, akvKeyPath, akvKeyID, pemChain)
+	}
+	return NewKmsSigner(ctx, kmsKeyPath, pemChain)
+}
 
 var _ jose.Signer = (*ConfigurableSigner)(nil)
 
